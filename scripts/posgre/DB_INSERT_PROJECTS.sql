@@ -1,4 +1,4 @@
-INSERT INTO "PROJECTS" ("NAME") VALUES
+INSERT INTO PROJECTS (NAME) VALUES
   ('Kinfolk'),
   ('Lucky Peach'),
   ('Edible Communities'),
