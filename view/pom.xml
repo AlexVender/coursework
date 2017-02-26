@@ -22,18 +22,22 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
+            <version>8.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-push</artifactId>
+            <version>8.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-themes</artifactId>
+            <version>8.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-client-compiled</artifactId>
+            <version>8.0.0</version>
         </dependency>
     </dependencies>
 
