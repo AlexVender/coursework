@@ -17,21 +17,21 @@ public class TaskEntity implements EntityItem {
     private Integer status;
     private Date startDate;
     private Date dueDate;
-    private Integer assigneeId;
-    private Integer projectId;
+    private UserEntity assignee;
+    private ProjectEntity project;
     
     public TaskEntity() {}
     
     public TaskEntity(String name, String description, Integer priority, Integer status,
-                      Date startDate, Date dueDate, Integer assigneeId, Integer projectId) {
+                      Date startDate, Date dueDate, UserEntity assignee, ProjectEntity project) {
         this.name = name;
         this.description = description;
         this.priority = priority;
         this.status = status;
         this.startDate = startDate;
         this.dueDate = dueDate;
-        this.assigneeId = assigneeId;
-        this.projectId = projectId;
+        this.assignee = assignee;
+        this.project = project;
     }
     
     @Id
@@ -104,24 +104,24 @@ public class TaskEntity implements EntityItem {
         this.dueDate = dueDate;
     }
     
-    @Basic
-    @Column(name = "assignee_id", nullable = false)
-    public Integer getAssigneeId() {
-        return assigneeId;
+    @ManyToOne
+    @JoinColumn(name = "assignee_id", referencedColumnName = "user_id", nullable = false)
+    public UserEntity getAssignee() {
+        return assignee;
     }
     
-    public void setAssigneeId(Integer assigneeId) {
-        this.assigneeId = assigneeId;
+    public void setAssignee(UserEntity usersByAssigneeId) {
+        this.assignee = usersByAssigneeId;
     }
     
-    @Basic
-    @Column(name = "project_id", nullable = false)
-    public Integer getProjectId() {
-        return projectId;
+    @ManyToOne
+    @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false)
+    public ProjectEntity getProject() {
+        return project;
     }
     
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
+    public void setProject(ProjectEntity projectsByProjectId) {
+        this.project = projectsByProjectId;
     }
     
     @Override
@@ -136,12 +136,13 @@ public class TaskEntity implements EntityItem {
                 Objects.equals(status, that.status) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(dueDate, that.dueDate) &&
-                Objects.equals(assigneeId, that.assigneeId) &&
-                Objects.equals(projectId, that.projectId);
+                Objects.equals(assignee.getId(), that.assignee.getId()) &&
+                Objects.equals(project.getId(), that.project.getId());
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(taskId, name, description, priority, status, startDate, dueDate, assigneeId, projectId);
+        return Objects.hash(taskId, name, description, priority, status,
+                startDate, dueDate, assignee.getId(), project.getId());
     }
 }
