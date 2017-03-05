@@ -1,5 +1,6 @@
 package coursework.entities;
 
+import coursework.datatypes.Status;
 import coursework.interfaces.EntityItem;
 
 import javax.persistence.*;
@@ -14,7 +15,7 @@ public class TaskEntity implements EntityItem {
     private String name;
     private String description;
     private Integer priority;
-    private Integer status;
+    private Status status;
     private Date startDate;
     private Date dueDate;
     private UserEntity assignee;
@@ -22,7 +23,7 @@ public class TaskEntity implements EntityItem {
     
     public TaskEntity() {}
     
-    public TaskEntity(String name, String description, Integer priority, Integer status,
+    public TaskEntity(String name, String description, Integer priority, Status status,
                       Date startDate, Date dueDate, UserEntity assignee, ProjectEntity project) {
         this.name = name;
         this.description = description;
@@ -76,11 +77,11 @@ public class TaskEntity implements EntityItem {
     
     @Basic
     @Column(name = "status", nullable = false)
-    public Integer getStatus() {
+    public Status getStatus() {
         return status;
     }
     
-    public void setStatus(Integer status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
     
