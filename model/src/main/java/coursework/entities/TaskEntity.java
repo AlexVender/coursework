@@ -1,5 +1,6 @@
 package coursework.entities;
 
+import coursework.datatypes.Priority;
 import coursework.datatypes.Status;
 import coursework.interfaces.EntityItem;
 
@@ -14,7 +15,7 @@ public class TaskEntity implements EntityItem {
     private Integer taskId;
     private String name;
     private String description;
-    private Integer priority;
+    private Priority priority;
     private Status status;
     private Date startDate;
     private Date dueDate;
@@ -23,7 +24,7 @@ public class TaskEntity implements EntityItem {
     
     public TaskEntity() {}
     
-    public TaskEntity(String name, String description, Integer priority, Status status,
+    public TaskEntity(String name, String description, Priority priority, Status status,
                       Date startDate, Date dueDate, UserEntity assignee, ProjectEntity project) {
         this.name = name;
         this.description = description;
@@ -67,11 +68,11 @@ public class TaskEntity implements EntityItem {
     
     @Basic
     @Column(name = "priority", nullable = false)
-    public Integer getPriority() {
+    public Priority getPriority() {
         return priority;
     }
     
-    public void setPriority(Integer priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
     
