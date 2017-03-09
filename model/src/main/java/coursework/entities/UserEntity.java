@@ -64,4 +64,13 @@ public class UserEntity implements EntityItem {
     public int hashCode() {
         return Objects.hash(userId, firstName, lastName);
     }
+    
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

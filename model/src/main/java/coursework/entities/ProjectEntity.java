@@ -52,4 +52,13 @@ public class ProjectEntity implements EntityItem {
     public int hashCode() {
         return Objects.hash(projectId, name);
     }
+    
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

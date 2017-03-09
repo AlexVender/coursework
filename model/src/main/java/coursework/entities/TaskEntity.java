@@ -147,4 +147,18 @@ public class TaskEntity implements EntityItem {
         return Objects.hash(taskId, name, description, priority, status,
                 startDate, dueDate, assignee.getId(), project.getId());
     }
+    
+    @Override
+    public Object clone() {
+        try {
+            TaskEntity result = (TaskEntity) super.clone();
+            result.setStartDate((Date) startDate.clone());
+            result.setDueDate((Date) dueDate.clone());
+            result.setAssignee((UserEntity) assignee.clone());
+            result.setProject((ProjectEntity) project.clone());
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
