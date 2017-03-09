@@ -3,10 +3,13 @@ package coursework.dao;
 import coursework.dao.interfaces.TasksDAO;
 import coursework.entities.TaskEntity;
 
+import java.util.List;
+
+
 /**
  * Created by chanta on 08.03.17.
  */
-public class TasksDAOImpl  extends AbstractDAO implements TasksDAO {
+public class TasksDAOImpl extends AbstractDAO implements TasksDAO {
     @Override
     public Integer create(TaskEntity task) {
         return super.create(task);
@@ -14,12 +17,12 @@ public class TasksDAOImpl  extends AbstractDAO implements TasksDAO {
 
     @Override
     public TaskEntity read(Integer id) {
-        return (TaskEntity)super.read(id,TaskEntity.class);
+        return (TaskEntity) read(id, TaskEntity.class);
     }
 
     @Override
-    public TaskEntity readAll(Integer limit, Integer offset) {
-        return (TaskEntity)super.readAll(limit,offset,TaskEntity.class);
+    public List<TaskEntity> readAll(Integer limit, Integer offset) {
+        return readAll(limit, offset, TaskEntity.class);
     }
 
     @Override

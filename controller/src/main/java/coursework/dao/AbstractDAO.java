@@ -3,18 +3,19 @@ package coursework.dao;
 
 import coursework.interfaces.EntityItem;
 import coursework.utils.HibernateSessionFactory;
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  * Created by chanta on 08.03.17.
  */
 public abstract class AbstractDAO {
-    final static Logger logger = Logger.getLogger(AbstractDAO.class);
+    private final static Logger logger = Logger.getLogger(AbstractDAO.class);
 
     protected Integer create(EntityItem entity) {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
@@ -26,19 +27,16 @@ public abstract class AbstractDAO {
             logger.error(e);
             return null;
         }
-
     }
 
-    protected  static <T extends EntityItem> EntityItem read (Integer id, Class<T> resultType) {
+    protected static EntityItem read(Integer id, Class<? extends EntityItem> resultType) {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-            EntityItem entityItem = session.get(resultType, id);
-            return entityItem;
+            return session.get(resultType, id);
         } catch (HibernateException e) {
             logger.error(e);
             return null;
         }
     }
-
 
     protected static <T extends EntityItem> List<T> readAll(Integer limit, Integer offset, Class<T> resultType) {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
@@ -56,7 +54,6 @@ public abstract class AbstractDAO {
         }
     }
 
-
     protected void update(EntityItem entity) {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
             session.beginTransaction();
@@ -66,7 +63,6 @@ public abstract class AbstractDAO {
             logger.error(e);
         }
     }
-
 
     protected void delete(Integer id) {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {

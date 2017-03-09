@@ -3,6 +3,9 @@ package coursework.dao;
 import coursework.dao.interfaces.UsersDAO;
 import coursework.entities.UserEntity;
 
+import java.util.List;
+
+
 /**
  * Created by chanta on 08.03.17.
  */
@@ -14,12 +17,12 @@ public class UsersDAOImpl extends AbstractDAO implements UsersDAO {
 
     @Override
     public UserEntity read(Integer id) {
-        return (UserEntity) super.read(id,UserEntity.class);
+        return (UserEntity) read(id, UserEntity.class);
     }
 
     @Override
-    public UserEntity readAll(Integer limit, Integer offset) {
-        return (UserEntity) super.readAll(limit, offset,UserEntity.class);
+    public List<UserEntity> readAll(Integer limit, Integer offset) {
+        return readAll(limit, offset, UserEntity.class);
     }
 
     @Override
