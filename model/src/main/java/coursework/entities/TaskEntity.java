@@ -5,7 +5,7 @@ import coursework.datatypes.Status;
 import coursework.interfaces.EntityItem;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 
@@ -17,15 +17,15 @@ public class TaskEntity implements EntityItem {
     private String description;
     private Priority priority;
     private Status status;
-    private Date startDate;
-    private Date dueDate;
+    private LocalDate startDate;
+    private LocalDate dueDate;
     private UserEntity assignee;
     private ProjectEntity project;
     
     public TaskEntity() {}
     
     public TaskEntity(String name, String description, Priority priority, Status status,
-                      Date startDate, Date dueDate, UserEntity assignee, ProjectEntity project) {
+                      LocalDate startDate, LocalDate dueDate, UserEntity assignee, ProjectEntity project) {
         this.name = name;
         this.description = description;
         this.priority = priority;
@@ -88,21 +88,21 @@ public class TaskEntity implements EntityItem {
     
     @Basic
     @Column(name = "start_date", nullable = false)
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
     
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
     
     @Basic
     @Column(name = "due_date")
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
     
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
     
@@ -152,8 +152,6 @@ public class TaskEntity implements EntityItem {
     public Object clone() {
         try {
             TaskEntity result = (TaskEntity) super.clone();
-            result.setStartDate((Date) startDate.clone());
-            result.setDueDate((Date) dueDate.clone());
             result.setAssignee((UserEntity) assignee.clone());
             result.setProject((ProjectEntity) project.clone());
             return result;
