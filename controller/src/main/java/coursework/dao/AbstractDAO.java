@@ -1,6 +1,7 @@
 package coursework.dao;
 
 
+import coursework.dao.exceptions.DAOException;
 import coursework.interfaces.EntityItem;
 import coursework.utils.HibernateSessionFactory;
 import org.apache.log4j.Logger;
@@ -17,28 +18,31 @@ import java.util.List;
 public abstract class AbstractDAO {
     private final static Logger logger = Logger.getLogger(AbstractDAO.class);
 
-    protected Integer create(EntityItem entity) {
+    protected Integer create(EntityItem entity) throws DAOException {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
             session.beginTransaction();
             session.save(entity);
             session.getTransaction().commit();
+            
+            logger.info("Created " + entity.getClass() + " with id " + entity.getId());
             return entity.getId();
         } catch (HibernateException e) {
-            logger.error(e);
-            return null;
+            logger.error(e.getStackTrace());
+            throw new DAOException(e);
         }
     }
 
-    protected static EntityItem read(Integer id, Class<? extends EntityItem> resultType) {
+    protected static EntityItem read(Integer id, Class<? extends EntityItem> resultType) throws DAOException {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()){
             return session.get(resultType, id);
         } catch (HibernateException e) {
-            logger.error(e);
-            return null;
+            logger.error(e.getStackTrace());
+            throw new DAOException(e);
         }
     }
 
-    protected static <T extends EntityItem> List<T> readAll(Integer limit, Integer offset, Class<T> resultType) {
+    protected static <T extends EntityItem> List<T> readAll(Integer limit, Integer offset, Class<T> resultType)
+            throws DAOException {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
             CriteriaQuery<T> cq = session.getCriteriaBuilder().createQuery(resultType);
             cq.select(cq.from(resultType));
@@ -49,28 +53,33 @@ public abstract class AbstractDAO {
 
             return typedQuery.getResultList();
         } catch (HibernateException e) {
-            logger.error(e);
-            return null;
+            logger.error(e.getStackTrace());
+            throw new DAOException(e);
         }
     }
 
-    protected void update(EntityItem entity) {
+    protected void update(EntityItem entity) throws DAOException {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
             session.beginTransaction();
             session.update(entity);
             session.getTransaction().commit();
+            logger.info("Updated " + entity.getClass() + " with id " + entity.getId());
         } catch (HibernateException e) {
-            logger.error(e);
+            logger.error(e.getStackTrace());
+            throw new DAOException(e);
         }
     }
 
-    protected void delete(Integer id) {
+    protected void delete(EntityItem entity) throws DAOException {
+        logger.info("Deleting " + entity.getClass() + " with id  " + entity.getId());
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
             session.beginTransaction();
-            session.delete(id);
+            session.delete(entity);
             session.getTransaction().commit();
+            logger.info("Deleted " + entity.getClass() + " with id  " + entity.getId());
         } catch (HibernateException e) {
-            logger.error(e);
+            logger.error(e.getStackTrace());
+            throw new DAOException(e);
         }
     }
 }

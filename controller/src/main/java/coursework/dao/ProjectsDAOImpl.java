@@ -1,5 +1,6 @@
 package coursework.dao;
 
+import coursework.dao.exceptions.DAOException;
 import coursework.dao.interfaces.ProjectsDAO;
 import coursework.entities.ProjectEntity;
 
@@ -11,27 +12,27 @@ import java.util.List;
  */
 public class ProjectsDAOImpl extends AbstractDAO implements ProjectsDAO {
     @Override
-    public Integer create(ProjectEntity project) {
+    public Integer create(ProjectEntity project) throws DAOException {
         return super.create(project);
     }
 
     @Override
-    public ProjectEntity read(Integer id) {
+    public ProjectEntity read(Integer id) throws DAOException {
         return (ProjectEntity) read(id, ProjectEntity.class);
     }
 
     @Override
-    public List<ProjectEntity> readAll(Integer limit, Integer offset) {
+    public List<ProjectEntity> readAll(Integer limit, Integer offset) throws DAOException {
         return readAll(limit, offset, ProjectEntity.class);
     }
 
     @Override
-    public void update(ProjectEntity user) {
-        super.update(user);
+    public void update(ProjectEntity project) throws DAOException {
+        super.update(project);
     }
 
     @Override
-    public void delete(Integer id) {
-        super.delete(id);
+    public void delete(ProjectEntity projectEntity) throws DAOException {
+        super.delete(projectEntity);
     }
 }
