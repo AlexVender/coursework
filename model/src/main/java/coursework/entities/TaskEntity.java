@@ -22,7 +22,9 @@ public class TaskEntity implements EntityItem {
     private UserEntity assignee;
     private ProjectEntity project;
     
-    public TaskEntity() {}
+    public TaskEntity() {
+        status = Status.OPEN;
+    }
     
     public TaskEntity(String name, String description, Priority priority, Status status,
                       LocalDate startDate, LocalDate dueDate, UserEntity assignee, ProjectEntity project) {
@@ -37,6 +39,7 @@ public class TaskEntity implements EntityItem {
     }
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "task_id", nullable = false)
     public Integer getId() {
         return taskId;
