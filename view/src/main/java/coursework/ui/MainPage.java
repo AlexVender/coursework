@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 
-@Title("Bugtrack")
+@Title("Tasks Manager")
 @Theme("custom-valo")
 public class MainPage extends UI {
     public static final float WIDTH = 980;
@@ -63,7 +63,7 @@ public class MainPage extends UI {
     private final ComboBox<UserEntity> filterAssignee = new ComboBox<>("Assignee");
     private final ComboBox<ProjectEntity> filterProject = new ComboBox<>("Project");
     
-    private TasksDAO tasksDAO = new TasksDAOImpl(); // todo: change
+    private TasksDAO tasksDAO = new TasksDAOImpl();
     private UsersDAO usersDAO = new UsersDAOImpl();
     private ProjectsDAO projectsDAO = new ProjectsDAOImpl();
     
