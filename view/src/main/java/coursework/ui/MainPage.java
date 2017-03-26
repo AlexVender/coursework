@@ -8,11 +8,18 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import coursework.dao.ProjectsDAOImpl;
 import coursework.dao.TasksDAOImpl;
+import coursework.dao.UsersDAOImpl;
+import coursework.dao.interfaces.ProjectsDAO;
 import coursework.dao.interfaces.TasksDAO;
+import coursework.dao.interfaces.UsersDAO;
 import coursework.datatypes.Priority;
 import coursework.datatypes.Status;
+import coursework.entities.ProjectEntity;
 import coursework.entities.TaskEntity;
+import coursework.entities.UserEntity;
+import coursework.filters.TasksFilter;
 import coursework.utils.EnumItemCaptionGenerator;
 import coursework.utils.EnumRenderer;
 import coursework.utils.LocalDateRenderer;
@@ -23,12 +30,12 @@ import java.util.Set;
 
 
 @Title("Bugtrack")
-@Theme("valo")
+@Theme("custom-valo")
 public class MainPage extends UI {
-    public static final float WIDTH = 1400;
-    public static final float PRIORITY_COLUMN_WIDTH = 100;
-    public static final float STATUS_COLUMN_WIDTH = 120;
-    public static final float DUE_DATE_COLUMN_WIDTH = 100;
+    public static final float WIDTH = 980;
+    public static final float PRIORITY_COLUMN_WIDTH = 70;
+    public static final float STATUS_COLUMN_WIDTH = 90;
+    public static final float DUE_DATE_COLUMN_WIDTH = 75;
     
     public static final String DATE_FORMAT = "dd.MM.YY";
     
@@ -43,14 +50,24 @@ public class MainPage extends UI {
     
     private final Button btnDelete = new Button("Delete");
     private final Button btnNew = new Button("New");
+    private final Button btnSearchSwitch = new Button("Search");
+    private final Button btnFind = new Button("Find");
     
     private final TextField filterText = new TextField("Search by text");
     private final ComboBox<Priority> filterPriority = new ComboBox<>("Priority");
     private final ComboBox<Status> filterStatus = new ComboBox<>("Status");
-    private final DateField filterStartDate = new DateField("Start Date");
-    private final DateField filterDueDate = new DateField("Due Date");
+    private final DateField filterStartDateFrom = new DateField();
+    private final DateField filterStartDateTo = new DateField();
+    private final DateField filterDueDateFrom = new DateField();
+    private final DateField filterDueDateTo = new DateField();
+    private final ComboBox<UserEntity> filterAssignee = new ComboBox<>("Assignee");
+    private final ComboBox<ProjectEntity> filterProject = new ComboBox<>("Project");
     
     private TasksDAO tasksDAO = new TasksDAOImpl(); // todo: change
+    private UsersDAO usersDAO = new UsersDAOImpl();
+    private ProjectsDAO projectsDAO = new ProjectsDAOImpl();
+    
+    private TasksFilter filter = new TasksFilter();
     
     private Set<TaskEntity> selectedItems;
     
@@ -59,7 +76,7 @@ public class MainPage extends UI {
         initLayout();
         tasksGridInit();
         rightPaneInit();
-    
+        
         wrapPane.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         wrapPane.setSizeFull();
         wrapPane.addComponent(mainLayout);
@@ -67,27 +84,23 @@ public class MainPage extends UI {
         mainLayout.setWidth(WIDTH, Unit.PIXELS);
         mainLayout.setHeight("100%");
         mainLayout.setMargin(new MarginInfo(true, false, false, false));
-    
+        
         rightPane.setMargin(true);
     }
-
+    
     private void initLayout() {
         setContent(wrapPane);
         
-        mainLayout.addComponent(tasksGrid);
-        mainLayout.addComponent(rightPane);
-        
-        rightPane.addComponent(buttonsPane);
-        rightPane.addComponent(filterFormLayout);
+        mainLayout.addComponents(tasksGrid, rightPane);
+        rightPane.addComponents(buttonsPane, filterFormLayout);
+        buttonsPane.addComponents(btnNew, btnDelete, btnSearchSwitch);
     
-        buttonsPane.addComponent(btnNew);
-        buttonsPane.addComponent(btnDelete);
-        
-        filterFormLayout.addComponent(filterText);
-        filterFormLayout.addComponent(filterPriority);
-        filterFormLayout.addComponent(filterStatus);
-        filterFormLayout.addComponent(filterStartDate);
-        filterFormLayout.addComponent(filterDueDate);
+        HorizontalLayout filterStartDate = new HorizontalLayout(filterStartDateFrom, new Label(" – "), filterStartDateTo);
+        HorizontalLayout filterDueDate = new HorizontalLayout(filterDueDateFrom, new Label(" – "), filterDueDateTo);
+        filterStartDate.setCaption("Start Date");
+        filterDueDate.setCaption("Due Date");
+        filterFormLayout.addComponents(filterText, filterPriority, filterStatus, filterStartDate,
+                filterDueDate, filterAssignee, filterProject, btnFind);
     }
     
     public void tasksGridInit() {
@@ -96,7 +109,8 @@ public class MainPage extends UI {
         
         tasksGrid.addColumn(TaskEntity::getName)
                 .setCaption("Name")
-                .setResizable(false);
+                .setResizable(false)
+                .setExpandRatio(2);
         tasksGrid.addColumn(TaskEntity::getPriority, new EnumRenderer<Priority>())
                 .setCaption("Priority")
                 .setWidth(PRIORITY_COLUMN_WIDTH)
@@ -124,12 +138,17 @@ public class MainPage extends UI {
     
     private void rightPaneInit() {
         filterFormLayout.setSizeFull();
+        filterFormLayout.setVisible(false);
         
         filterText.setWidth("100%");
         filterPriority.setItems(Arrays.asList(Priority.values()));
         filterPriority.setItemCaptionGenerator(new EnumItemCaptionGenerator<>());
         filterStatus.setItems(Arrays.asList(Status.values()));
         filterStatus.setItemCaptionGenerator(new EnumItemCaptionGenerator<>());
+        filterAssignee.setItemCaptionGenerator(item -> item.getFirstName() + " " + item.getLastName());
+        filterAssignee.setItems(usersDAO.readAll(0, 0));
+        filterProject.setItemCaptionGenerator(ProjectEntity::getName);
+        filterProject.setItems(projectsDAO.readAll(0, 0));
         
         btnNew.addClickListener(event -> {
             TaskCreateWindow taskCreateWindow = new TaskCreateWindow();
@@ -139,22 +158,50 @@ public class MainPage extends UI {
         
         btnDelete.addClickListener(event -> {
             selectedItems = tasksGrid.getSelectedItems();
-                int cnt = selectedItems.size();
-                if (cnt > 0) {
-                    for (TaskEntity taskEntity : selectedItems) {
-                        tasksDAO.delete(taskEntity);
-                    }
-                    String message = (cnt > 1) ? "Successfully deleted " + cnt + " tasks" : "Task Successfully deleted";
-                    Notification successDeleteNotification = new Notification(message, Notification.Type.HUMANIZED_MESSAGE);
-                    successDeleteNotification.show(Page.getCurrent());
-        
-                    refreshTasks();
+            int cnt = selectedItems.size();
+            if (cnt > 0) {
+                for (TaskEntity taskEntity : selectedItems) {
+                    tasksDAO.delete(taskEntity);
+                }
+                String message = (cnt > 1) ? "Successfully deleted " + cnt + " tasks" : "Task Successfully deleted";
+                Notification successDeleteNotification = new Notification(message, Notification.Type.HUMANIZED_MESSAGE);
+                successDeleteNotification.show(Page.getCurrent());
+                
+                refreshTasks();
             }
+        });
+        
+        btnSearchSwitch.addClickListener(event -> {
+            if (filterFormLayout.isVisible()) {
+                btnSearchSwitch.setCaption("Search");
+                filterFormLayout.setVisible(false);
+            } else {
+                btnSearchSwitch.setCaption("Show all");
+                filterFormLayout.setVisible(true);
+            }
+            refreshTasks();
+        });
+        
+        btnFind.addClickListener(event -> {
+            filter.setName(filterText.getValue());
+            filter.setPriority(filterPriority.getValue());
+            filter.setStatus(filterStatus.getValue());
+            filter.setStartDateFrom(filterStartDateFrom.getValue());
+            filter.setStartDateTo(filterStartDateTo.getValue());
+            filter.setDueDateFrom(filterDueDateFrom.getValue());
+            filter.setDueDateTo(filterDueDateTo.getValue());
+            filter.setAssignee(filterAssignee.getValue());
+            filter.setProject(filterProject.getValue());
+            refreshTasks();
         });
     }
     
     public void refreshTasks() {
-        tasksGrid.setItems(tasksDAO.readAll(0, 0));
+        if (filterFormLayout.isVisible()) {
+            tasksGrid.setItems(filter.find());
+        } else {
+            tasksGrid.setItems(tasksDAO.readAll(0, 0));
+        }
     }
     
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

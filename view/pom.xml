@@ -51,36 +51,33 @@
             <artifactId>vaadin-themes</artifactId>
             <version>${vaadin.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                <artifactId>maven-source-plugin</artifactId>
                 <version>3.0.0</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
-                            <!-- Widgetset goals for add-ons, including VaadinArchetype-addon -->
-                            <goal>update-widgetset</goal>
-                            <goal>compile</goal>
-
+                            <goal>clean</goal>
+                            <goal>resources</goal>
                             <goal>update-theme</goal>
-                            <!-- Comment out compile-theme goal to use on-the-fly theme compilation -->
+                            <goal>update-widgetset</goal>
                             <goal>compile-theme</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>

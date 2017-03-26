@@ -33,7 +33,7 @@ public class TasksFilter {
     private ProjectEntity project;
 
     public TasksFilter setName(String name) {
-        this.name = name;
+        this.name = "%" + name + "%";
         return this;
     }
 
@@ -78,7 +78,7 @@ public class TasksFilter {
     }
 
 
-    public List<TaskEntity> filtering(TasksFilter filter) throws DAOException {
+    public List<TaskEntity> find() throws DAOException {
         try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
 
             Class resultType = TaskEntity.class;
@@ -96,16 +96,18 @@ public class TasksFilter {
             if (status != null) {
                 cr.add(Restrictions.eq("status", status));
             }
-
-            if (startDateFrom != null && startDateTo != null) {
+            if (startDateFrom != null) {
                 cr.add(Restrictions.ge("startDate", startDateFrom));
+            }
+            if (startDateTo != null) {
                 cr.add(Restrictions.le("startDate", startDateTo));
             }
-            if (dueDateFrom != null && dueDateTo != null) {
+            if (dueDateFrom != null) {
                 cr.add(Restrictions.ge("dueDate", dueDateFrom));
+            }
+            if (dueDateTo != null) {
                 cr.add(Restrictions.le("dueDate", dueDateTo));
             }
-
             if (project != null) {
                 cr.add(Restrictions.eq("project", project));
             }
